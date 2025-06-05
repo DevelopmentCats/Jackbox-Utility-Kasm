@@ -98,6 +98,12 @@ jobs:
           event-type: rebuild-image
           client-payload: '{"version": "${{ needs.check-version.outputs.new_version }}"}'
 
+      - name: Set Docker Tag
+        id: docker_tag
+        run: |
+          DOCKER_TAG=$(echo "${{ needs.check-version.outputs.new_version }}" | tr '+' '-')
+          echo "docker_tag=${DOCKER_TAG}" >> "$GITHUB_OUTPUT"
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -118,7 +124,7 @@ jobs:
             
             **Docker Image:**
             ```bash
-            docker pull ghcr.io/${{ github.repository_owner }}/jackbox-utility-kasm:${{ needs.check-version.outputs.new_version }}
+            docker pull ghcr.io/developmentcats/jackbox-utility-kasm:${{ steps.docker_tag.outputs.docker_tag }}
             ```
           draft: false
           prerelease: false 

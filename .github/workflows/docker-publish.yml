@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ghcr.io/developmentcats/jackbox-utility-kasm
 
 jobs:
   test:
@@ -61,7 +61,7 @@ jobs:
         with:
           context: .
           load: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ github.event.repository.name }}-test:${{ steps.version.outputs.version }}
+          tags: ghcr.io/developmentcats/jackbox-utility-kasm-test:${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           labels: |
@@ -73,7 +73,7 @@ jobs:
         run: |
           echo "Starting container for critical tests..."
           docker run -d --name jackbox-utility \
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ github.event.repository.name }}-test:${{ steps.version.outputs.version }}
+            ghcr.io/developmentcats/jackbox-utility-kasm-test:${{ steps.version.outputs.version }}
 
           # Wait for container to start (max 30 seconds)
           for i in {1..6}; do
@@ -145,7 +145,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=${{ needs.test.outputs.version }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
