@@ -1,6 +1,8 @@
 # Jackbox Utility - Kasm Workspace Image
 
-This repository contains a Kasm workspace image for running [Jackbox Utility](https://github.com/JackboxUtility/JackboxUtility) in a containerized environment.
+This repository contains a Kasm workspace image for running [JackboxUtility](https://github.com/JackboxUtility/JackboxUtility) in a containerized environment.
+
+> **Note:** This project packages the excellent [JackboxUtility](https://github.com/JackboxUtility/JackboxUtility) application created by [Alexis](https://github.com/AlexisL61) and contributors. All credit for the JackboxUtility application goes to the original developers. This repository only provides Docker containerization for use with Kasm Workspaces.
 
 [![🐳 Docker Build & Publish](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/actions/workflows/docker-publish.yml)
 [![Latest Release](https://img.shields.io/github/v/release/DevelopmentCats/Jackbox-Utility-Kasm?logo=github)](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/releases)
@@ -8,10 +10,11 @@ This repository contains a Kasm workspace image for running [Jackbox Utility](ht
 ## Features
 
 - Based on Kasm Ubuntu Jammy image
-- Pre-installed Jackbox Utility with all required dependencies
+- Pre-installed JackboxUtility with all required dependencies
 - Desktop integration for easy access
 - Containerized environment for running Jackbox games
-- Automatic updates via GHCR releases
+- Automatic updates tracking stable JackboxUtility releases
+- Version tags match JackboxUtility releases exactly
 
 ## Using the Image
 
@@ -23,10 +26,10 @@ The image is available on GitHub Container Registry. You can pull it using:
 docker pull ghcr.io/developmentcats/jackbox-utility-kasm:latest
 ```
 
-Or a specific version:
+Or a specific JackboxUtility version:
 
 ```bash
-docker pull ghcr.io/developmentcats/jackbox-utility-kasm:v1.0.0
+docker pull ghcr.io/developmentcats/jackbox-utility-kasm:1.4.2-2
 ```
 
 ### Building Locally
@@ -50,6 +53,13 @@ docker run --rm -it \
 
 Then access the workspace at: https://localhost:6901 (Password: `kasm_user`)
 
+## Versioning
+
+- Image versions match [JackboxUtility releases](https://github.com/JackboxUtility/JackboxUtility/releases) exactly
+- Only stable releases are used (no beta versions)
+- Docker tag format: JackboxUtility version with `+` replaced by `-` (e.g., `1.4.2+2` becomes `1.4.2-2`)
+- Automatic nightly checks for new stable releases
+
 ## Notes
 
 - This image is intended to be used with Kasm Workspaces
@@ -58,12 +68,18 @@ Then access the workspace at: https://localhost:6901 (Password: `kasm_user`)
 
 ## Releases
 
-Images are automatically built and published to GHCR on:
-- Every push to the main branch (tagged as `latest`)
-- Every tag push (tagged as version number)
+Images are automatically built and published to GHCR:
+- Every night at 3 AM CST - checks for new stable JackboxUtility releases
+- On new JackboxUtility stable releases - automatically creates matching image versions
+- Manual builds via GitHub Actions
 
 You can find all available versions on our [GitHub Container Registry](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/pkgs/container/jackbox-utility-kasm).
 
+## Credits
+
+- **JackboxUtility Application:** [JackboxUtility](https://github.com/JackboxUtility/JackboxUtility) by [Alexis](https://github.com/AlexisL61) and contributors
+- **Kasm Workspaces:** Base container technology by [Kasm Technologies](https://kasmweb.com/)
+
 ## License
 
-This project is licensed under the same terms as Jackbox Utility (GPL-3.0). 
+This project is licensed under the same terms as JackboxUtility (GPL-3.0). See the [original project](https://github.com/JackboxUtility/JackboxUtility) for details. 

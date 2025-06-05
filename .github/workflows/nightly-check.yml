@@ -1,0 +1,124 @@
+name: "🌙 Nightly Release Check"
+
+on:
+  schedule:
+    # Run at 3 AM CST (9 AM UTC)
+    - cron: '0 9 * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  check-version:
+    name: "🔍 Check for Updates"
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.check_version.outputs.new_version }}
+      current_version: ${{ steps.check_version.outputs.current_version }}
+      needs_update: ${{ steps.check_version.outputs.needs_update }}
+    steps:
+      - name: Get Latest JackboxUtility Version
+        id: latest_version
+        run: |
+          # Get latest stable release (not prerelease/beta)
+          LATEST_VERSION=$(curl -sL https://api.github.com/repos/JackboxUtility/JackboxUtility/releases | jq -r '.[] | select(.prerelease == false) | .tag_name' | head -1)
+          echo "Found latest stable JackboxUtility version: ${LATEST_VERSION}"
+          echo "latest=${LATEST_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Get Current Image Version
+        id: current_version
+        run: |
+          # Check if we have any releases
+          CURRENT_VERSION=$(curl -sL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest" 2>/dev/null | \
+            jq -r '.tag_name // "none"' 2>/dev/null || echo "none")
+          
+          # Remove 'v' prefix if present
+          CURRENT_VERSION=$(echo "$CURRENT_VERSION" | sed 's/^v//')
+          
+          echo "Found current image version: ${CURRENT_VERSION}"
+          echo "current=${CURRENT_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Check if Update Needed
+        id: check_version
+        run: |
+          LATEST="${{ steps.latest_version.outputs.latest }}"
+          CURRENT="${{ steps.current_version.outputs.current }}"
+          
+          echo "new_version=${LATEST}" >> "$GITHUB_OUTPUT"
+          echo "current_version=${CURRENT}" >> "$GITHUB_OUTPUT"
+          
+          if [ "$CURRENT" != "$LATEST" ] && [ "$CURRENT" != "none" ]; then
+            echo "Update needed from ${CURRENT} to ${LATEST}"
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+          elif [ "$CURRENT" == "none" ]; then
+            echo "No existing release found, will create initial release for ${LATEST}"
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No update needed, already at ${LATEST}"
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  rebuild-image:
+    name: "🏗️ Rebuild Image"
+    needs: check-version
+    if: needs.check-version.outputs.needs_update == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Release Tag
+        id: create_tag
+        run: |
+          NEW_VERSION="${{ needs.check-version.outputs.new_version }}"
+          # Clean version for git tag (replace + with -)
+          CLEAN_VERSION=$(echo "$NEW_VERSION" | tr '+' '-')
+          echo "Creating tag v${CLEAN_VERSION}"
+          
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Create and push tag
+          git tag "v${CLEAN_VERSION}"
+          git push origin "v${CLEAN_VERSION}"
+          
+          echo "Created and pushed tag v${CLEAN_VERSION}"
+
+      - name: Trigger Build Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          event-type: rebuild-image
+          client-payload: '{"version": "${{ needs.check-version.outputs.new_version }}"}'
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.check-version.outputs.new_version }}
+          name: JackboxUtility ${{ needs.check-version.outputs.new_version }}
+          body: |
+            🔄 Automatic release for JackboxUtility version ${{ needs.check-version.outputs.new_version }}
+            
+            This release was automatically created to update the Kasm workspace image with the latest stable version of [JackboxUtility](https://github.com/JackboxUtility/JackboxUtility).
+            
+            **JackboxUtility Version:** ${{ needs.check-version.outputs.new_version }}
+            **Previous Image Version:** ${{ needs.check-version.outputs.current_version }}
+            
+            **What's included:**
+            - Latest stable JackboxUtility release
+            - Kasm workspace integration
+            - Desktop launcher and integration
+            
+            **Docker Image:**
+            ```bash
+            docker pull ghcr.io/${{ github.repository_owner }}/jackbox-utility-kasm:${{ needs.check-version.outputs.new_version }}
+            ```
+          draft: false
+          prerelease: false 
