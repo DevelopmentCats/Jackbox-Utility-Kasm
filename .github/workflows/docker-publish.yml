@@ -3,6 +3,7 @@ name: "🐳 Docker Build & Publish"
 on:
   push:
     branches: [ "main" ]
+    paths: [ "Dockerfile" ]
     tags: [ 'v*.*.*' ]
   repository_dispatch:
     types: [rebuild-image]

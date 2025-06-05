@@ -5,7 +5,7 @@ This repository contains a Kasm workspace image for running [JackboxUtility](htt
 > **Note:** This project packages the excellent [JackboxUtility](https://github.com/JackboxUtility/JackboxUtility) application created by [Alexis](https://github.com/AlexisL61) and contributors. All credit for the JackboxUtility application goes to the original developers. This repository only provides Docker containerization for use with Kasm Workspaces.
 
 [![🐳 Docker Build & Publish](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/actions/workflows/docker-publish.yml)
-[![Latest Release](https://img.shields.io/github/v/release/DevelopmentCats/Jackbox-Utility-Kasm?logo=github)](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/releases)
+[![Latest Package](https://img.shields.io/github/v/tag/DevelopmentCats/Jackbox-Utility-Kasm?logo=docker&label=latest%20tag)](https://github.com/DevelopmentCats/Jackbox-Utility-Kasm/pkgs/container/jackbox-utility-kasm)
 
 ## Features
 
