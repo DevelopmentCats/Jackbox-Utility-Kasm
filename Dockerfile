@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /opt/jackbox-utility
 
 # Download and install JackboxUtility
-RUN wget https://github.com/JackboxUtility/JackboxUtility/releases/latest/download/JackboxUtility-linux.zip -O /tmp/JackboxUtility.zip \
+RUN wget https://github.com/JackboxUtility/JackboxUtility/releases/latest/download/JackboxUtility_Linux.zip -O /tmp/JackboxUtility.zip \
     && unzip /tmp/JackboxUtility.zip -d /opt/jackbox-utility \
     && chmod +x /opt/jackbox-utility/JackboxUtility \
     && rm /tmp/JackboxUtility.zip
