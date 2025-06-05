@@ -1,4 +1,4 @@
-name: "🐳 Docker Build & Publish"
+name: "🐳 Build & Publish"
 
 on:
   push:
